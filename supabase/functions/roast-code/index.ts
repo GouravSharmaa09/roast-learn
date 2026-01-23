@@ -176,13 +176,13 @@ Response SIRF JSON mein.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash-lite", // Faster model for quick responses
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.95,
-        max_tokens: 4000,
+        temperature: 0.8, // Slightly lower for faster, more focused responses
+        max_tokens: 2500, // Reduced for faster response
       }),
     });
 

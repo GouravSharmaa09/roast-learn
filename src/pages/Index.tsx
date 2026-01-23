@@ -28,7 +28,7 @@ const Index = () => {
   
   // Hooks for history and sounds
   const { history, addToHistory, deleteFromHistory, clearHistory } = useRoastHistory();
-  const { playSizzle } = useSoundEffects();
+  const { playNotify } = useSoundEffects();
 
   // Check if splash was already shown in this session
   useEffect(() => {
@@ -97,8 +97,8 @@ const Index = () => {
       // Save to history
       addToHistory(code, language, roastResult);
       
-      // Play sizzle sound! 🔥
-      playSizzle();
+      // Play notification sound! 🔔
+      playNotify();
       
       setAppState("results");
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -142,7 +142,7 @@ const Index = () => {
     setSelectedLanguage(entry.language);
     setResult(entry.result);
     changeState("results");
-    playSizzle();
+    playNotify();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
