@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RoastResponse } from "@/types/roast";
 import { Button } from "@/components/ui/button";
 import { Check, X, Lightbulb, RotateCcw } from "lucide-react";
+import { StreakBadge } from "./StreakBadge";
+import { useStreak } from "@/hooks/useStreak";
 
 interface QuizSectionProps {
   result: RoastResponse;
@@ -15,6 +17,9 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
   );
   const [showExplanation, setShowExplanation] = useState(false);
   const [quizComplete, setQuizComplete] = useState(false);
+  const [streakMessage, setStreakMessage] = useState("");
+  
+  const { streakData, incrementStreak, resetStreak, getStreakMessage } = useStreak();
 
   const mcq = result.mcqs[currentQuestion];
   const isAnswered = selectedAnswers[currentQuestion] !== null;
@@ -48,12 +53,35 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
     return Math.round((correct / result.mcqs.length) * 9) + 1;
   };
 
+  // Handle streak on quiz complete
+  useEffect(() => {
+    if (quizComplete) {
+      const score = calculateScore();
+      const passed = score >= 7;
+      
+      if (passed) {
+        const newData = incrementStreak();
+        setStreakMessage(getStreakMessage(newData.currentStreak));
+      } else {
+        resetStreak();
+        setStreakMessage("");
+      }
+    }
+  }, [quizComplete]);
+
   if (quizComplete) {
     const score = calculateScore();
     const passed = score >= 7;
 
     return (
       <div className="w-full max-w-2xl mx-auto px-4 animate-slide-up">
+        {/* Streak Badge */}
+        <StreakBadge 
+          currentStreak={streakData.currentStreak}
+          bestStreak={streakData.bestStreak}
+          message={streakMessage}
+        />
+
         {/* Score Display */}
         <div className={`rounded-2xl p-8 text-center border ${passed ? 'bg-success/10 border-success/30' : 'bg-destructive/10 border-destructive/30'}`}>
           <div className="text-6xl mb-4">
@@ -102,6 +130,12 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 animate-slide-up">
+      {/* Streak Badge at top */}
+      <StreakBadge 
+        currentStreak={streakData.currentStreak}
+        bestStreak={streakData.bestStreak}
+      />
+
       {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">

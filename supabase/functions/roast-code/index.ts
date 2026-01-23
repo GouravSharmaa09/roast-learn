@@ -71,8 +71,71 @@ serve(async (req) => {
   }
 
   try {
-    const { code, language } = await req.json();
+    const { code, language, mode, userExplanation, correctedCode } = await req.json();
     
+    // Handle "explain-back" mode
+    if (mode === "explain-back") {
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      if (!LOVABLE_API_KEY) {
+        return new Response(
+          JSON.stringify({ feedback: "Check nahi ho paya", passed: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const explainPrompt = `Tu ek strict teacher hai. User ne ye ${language} code dekha:
+\`\`\`${language}
+${code}
+\`\`\`
+
+Corrected code:
+\`\`\`${language}
+${correctedCode}
+\`\`\`
+
+User ka explanation: "${userExplanation}"
+
+Kya user ne sahi samjha ki bug kya tha aur kyun fix karna pada? 
+Response Hinglish mein de. Sirf JSON return kar:
+{
+  "feedback": "2-3 lines mein Hinglish feedback - funny bhi ho sakta hai",
+  "passed": true/false
+}`;
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [{ role: "user", content: explainPrompt }],
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
+      });
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "";
+      
+      try {
+        let jsonString = content.trim();
+        if (jsonString.startsWith("```json")) jsonString = jsonString.slice(7);
+        if (jsonString.startsWith("```")) jsonString = jsonString.slice(3);
+        if (jsonString.endsWith("```")) jsonString = jsonString.slice(0, -3);
+        const parsed = JSON.parse(jsonString.trim());
+        return new Response(JSON.stringify(parsed), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch {
+        return new Response(
+          JSON.stringify({ feedback: "Theek hai bhai, chal aage badh.", passed: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     if (!code || !language) {
       return new Response(
         JSON.stringify({ error: "Code aur language dono chahiye bhai" }),
@@ -97,7 +160,14 @@ serve(async (req) => {
 ${code}
 \`\`\`
 
-Yaad rakh - bahut harsh, funny, thodi gaali wala roast chahiye. User hase bhi aur sharam bhi aaye. Response SIRF JSON mein.`;
+Yaad rakh - bahut harsh, funny, thodi gaali wala roast chahiye. User hase bhi aur sharam bhi aaye. 
+
+IMPORTANT: "memoryHook" field mein ek catchy one-liner dena jo interview-ready ho, jaise:
+- "Agar loop khatam ho gaya, variable ko bhi jaane do"
+- "Null check na kiya toh production mein roya"
+- "Async await bina try-catch, jaise helmet bina bike"
+
+Response SIRF JSON mein.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -164,6 +234,11 @@ Yaad rakh - bahut harsh, funny, thodi gaali wala roast chahiye. User hase bhi au
         jsonString = jsonString.slice(0, -3);
       }
       parsedContent = JSON.parse(jsonString.trim());
+      
+      // Ensure memoryHook exists
+      if (!parsedContent.memoryHook) {
+        parsedContent.memoryHook = parsedContent.goldenRule || "Code likhna seekh pehle, phir production pe push karna.";
+      }
     } catch (parseError) {
       console.error("Failed to parse AI response as JSON:", content.substring(0, 500));
       return new Response(

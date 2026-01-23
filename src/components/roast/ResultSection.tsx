@@ -1,15 +1,22 @@
 import { useState } from "react";
-import { RoastResponse } from "@/types/roast";
+import { RoastResponse, Language } from "@/types/roast";
 import { Button } from "@/components/ui/button";
 import { Flame, Brain, AlertTriangle, ListOrdered, Sparkles, Star, ClipboardCheck, ChevronDown, ChevronUp } from "lucide-react";
+import { CodeBlock } from "./CodeBlock";
+import { MemoryHook } from "./MemoryHook";
+import { ExplainBack } from "./ExplainBack";
 
 interface ResultSectionProps {
   result: RoastResponse;
+  originalCode: string;
+  language: Language;
   onStartQuiz: () => void;
 }
 
-export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
+export function ResultSection({ result, originalCode, language, onStartQuiz }: ResultSectionProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['roast', 'fix', 'code', 'golden']));
+  const [showExplainBack, setShowExplainBack] = useState(false);
+  const [explainBackPassed, setExplainBackPassed] = useState(false);
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections);
@@ -19,6 +26,10 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       newExpanded.add(section);
     }
     setExpandedSections(newExpanded);
+  };
+
+  const handleExplainBackComplete = (passed: boolean) => {
+    setExplainBackPassed(passed);
   };
 
   return (
@@ -81,18 +92,18 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
         </ol>
       </ResultCard>
 
-      {/* Corrected Code */}
+      {/* Corrected Code with Syntax Highlighting */}
       <ResultCard
         icon={<Sparkles className="w-5 h-5" />}
         title="✨ Sahi Code Dekh"
         isExpanded={expandedSections.has('code')}
         onToggle={() => toggleSection('code')}
       >
-        <pre className="bg-background/50 rounded-xl p-4 overflow-x-auto">
-          <code className="text-sm font-mono text-foreground/90 whitespace-pre-wrap break-words">
-            {result.correctedCode}
-          </code>
-        </pre>
+        <CodeBlock 
+          code={result.correctedCode} 
+          language={language}
+          title={`corrected.${language === 'javascript' ? 'js' : language === 'python' ? 'py' : language}`}
+        />
       </ResultCard>
 
       {/* Golden Rule */}
@@ -107,6 +118,35 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
           "{result.goldenRule}"
         </p>
       </ResultCard>
+
+      {/* Memory Hook - Catchy One-Liner */}
+      {result.memoryHook && (
+        <MemoryHook hook={result.memoryHook} />
+      )}
+
+      {/* Explain It Back Section */}
+      {!showExplainBack && !explainBackPassed && (
+        <div className="pt-4">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setShowExplainBack(true)}
+            className="w-full"
+          >
+            <Brain className="w-5 h-5" />
+            🧠 Explain It Back - Samjha Kya?
+          </Button>
+        </div>
+      )}
+
+      {showExplainBack && !explainBackPassed && (
+        <ExplainBack
+          originalCode={originalCode}
+          correctedCode={result.correctedCode}
+          language={language}
+          onComplete={handleExplainBackComplete}
+        />
+      )}
 
       {/* Quiz CTA */}
       <div className="pt-6 pb-safe">
