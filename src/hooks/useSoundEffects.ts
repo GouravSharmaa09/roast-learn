@@ -1,11 +1,15 @@
 import { useCallback, useRef } from 'react';
 
-// Sound URLs (using free sound effects)
+// Short notification-style sounds (quick snippets)
 const SOUNDS = {
-  sizzle: 'https://assets.mixkit.co/active_storage/sfx/2550/2550-preview.mp3',
-  applause: 'https://assets.mixkit.co/active_storage/sfx/477/477-preview.mp3',
-  success: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3',
-  error: 'https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3',
+  // Short "ding" notification for response arrived
+  notify: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+  // Quick success chime
+  success: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3',
+  // Short applause/celebration
+  applause: 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3',
+  // Quick error beep
+  error: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3',
 };
 
 export function useSoundEffects() {
@@ -32,16 +36,17 @@ export function useSoundEffects() {
     }
   }, []);
 
-  const playSizzle = useCallback(() => {
-    playSound('sizzle', 0.4);
+  // Notification sound - short ding when roast ready
+  const playNotify = useCallback(() => {
+    playSound('notify', 0.5);
   }, [playSound]);
 
   const playApplause = useCallback(() => {
-    playSound('applause', 0.5);
+    playSound('applause', 0.4);
   }, [playSound]);
 
   const playSuccess = useCallback(() => {
-    playSound('success', 0.4);
+    playSound('success', 0.5);
   }, [playSound]);
 
   const playError = useCallback(() => {
@@ -49,7 +54,7 @@ export function useSoundEffects() {
   }, [playSound]);
 
   return {
-    playSizzle,
+    playNotify,
     playApplause,
     playSuccess,
     playError,
