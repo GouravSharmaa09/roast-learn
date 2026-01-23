@@ -46,7 +46,7 @@ export function CodeEditor({ onSubmit, isLoading }: CodeEditorProps) {
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder={`// Paste your ${LANGUAGES.find(l => l.value === language)?.label} code here...\n// Don't worry, we'll be gentle... 😈`}
+            placeholder={`// Apna ${LANGUAGES.find(l => l.value === language)?.label} code yahan paste kar...\n// Dar mat, bas thoda roast hoga 😈`}
             className="w-full h-64 sm:h-80 p-4 bg-transparent text-foreground font-mono text-sm sm:text-base resize-none focus:outline-none placeholder:text-muted-foreground/50"
             spellCheck={false}
             disabled={isLoading}
@@ -54,7 +54,7 @@ export function CodeEditor({ onSubmit, isLoading }: CodeEditorProps) {
           
           {/* Character count */}
           <div className="absolute bottom-2 right-2 text-xs text-muted-foreground/50">
-            {code.length} chars
+            {code.length} characters
           </div>
         </div>
 
@@ -70,19 +70,19 @@ export function CodeEditor({ onSubmit, isLoading }: CodeEditorProps) {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Roasting your code… 😈
+                Tera code roast ho raha hai… 😈
               </>
             ) : (
               <>
                 <Flame className="w-5 h-5" />
-                🔥 Roast My Code
+                🔥 Roast Karo Mera Code
               </>
             )}
           </Button>
           
           {isEmpty && (
             <p className="text-center text-sm text-muted-foreground mt-2">
-              Paste some code to get started
+              Pehle code paste kar bhai
             </p>
           )}
         </div>

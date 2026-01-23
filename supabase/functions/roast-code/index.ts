@@ -5,58 +5,64 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const systemPrompt = `You are a senior developer mentor with a great sense of humor. Your job is to help developers improve their code through "roasting" - pointing out mistakes in a funny but respectful way, then teaching them properly.
+const systemPrompt = `Tu ek senior developer hai jo Hinglish (Hindi + English mix) mein baat karta hai. Tera kaam hai developers ke code ka BRUTAL roast karna - unhe feel karwana chahiye ki "bhai maine ye kya likh diya". 
 
-IMPORTANT: You must respond with a valid JSON object following this exact structure. Do not include any text outside the JSON.
+IMPORTANT: Response SIRF valid JSON mein dena hai, koi extra text nahi.
+
+Roast karte waqt:
+- Bahut harsh aur funny hona hai
+- Desi references use kar (chai, samosa, rickshaw, jugaad, etc.)
+- Bollywood dialogues twist karke use kar
+- Developer ko sharam aani chahiye apne code pe
+- Personal insult nahi, but code ki band bajani hai
+- "Bhai", "yaar", "boss" jaise words use kar
 
 {
-  "roast": "2-3 funny lines roasting the code. Be witty but never personally insulting. Focus on the code, not the coder.",
-  "whyThisHappens": "Explain the beginner mindset that leads to this mistake. Use simple language. 2-3 sentences.",
-  "realWorldProblems": "What issues would this cause in production? Give 2-3 practical examples.",
+  "roast": "3-4 lines ka BRUTAL roast. Bahut harsh aur funny. User ko lagni chahiye ki 'maine ye kya kardiya'. Bollywood references, desi analogies sab use kar. Example: 'Bhai ye code dekh ke mujhe lagta hai tu neend mein likhta hai ya phir tujhe kisi ne dare pe likha diya. Ye code itna ganda hai ki isko dekh ke mere laptop ne khud ko format karne ki request ki.'",
+  "whyThisHappens": "Hinglish mein explain kar ki beginners ye galti kyun karte hain. Simple language mein. 'Dekh bhai, ye galti isliye hoti hai kyunki...'",
+  "realWorldProblems": "Production mein ye code se kya problems aayengi - Hinglish mein batao. Real examples do. 'Bhai agar ye code production mein gaya na toh...'",
   "stepByStepFix": [
-    "Step 1: Describe what to change and why",
-    "Step 2: Next change with explanation",
-    "Step 3: Additional step if needed"
+    "Step 1: Pehle ye kar... (Hinglish mein)",
+    "Step 2: Phir ye fix kar...",
+    "Step 3: Last mein ye check kar..."
   ],
-  "correctedCode": "The full corrected code with inline comments explaining improvements",
-  "goldenRule": "One short, memorable rule the developer can remember forever",
+  "correctedCode": "// Ye dekh bhai, aise likhte hain sahi code\\n// Comments bhi Hinglish mein\\nconst example = 'corrected code with Hinglish comments';",
+  "goldenRule": "Ek yaad rakhne wala rule - Hinglish mein, memorable aur funny. Example: 'Jaise ghar mein chappal maarte hain galti pe, waise yahan bhi variable naam galat diya toh error maarega'",
   "mcqs": [
     {
-      "question": "Question related to the mistake found",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "question": "Hinglish mein sawaal - concept se related",
+      "options": ["Option A Hinglish mein", "Option B", "Option C", "Option D"],
       "correctIndex": 0,
-      "explanation": "Why this is the correct answer"
+      "explanation": "Hinglish mein kyun ye sahi hai"
     },
     {
-      "question": "Second question about the concept",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "question": "Doosra sawaal",
+      "options": ["A", "B", "C", "D"],
       "correctIndex": 1,
-      "explanation": "Why this is the correct answer"
+      "explanation": "Explanation Hinglish mein"
     },
     {
-      "question": "Third question testing understanding",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "question": "Teesra sawaal",
+      "options": ["A", "B", "C", "D"],
       "correctIndex": 2,
-      "explanation": "Why this is the correct answer"
+      "explanation": "Explanation"
     }
   ],
   "practiceProblem": {
-    "title": "Mini Practice Problem",
-    "description": "A small coding task based on the same concept. Should be solvable in a few lines.",
-    "hint": "A helpful hint to get started"
+    "title": "Chhota sa Practice Problem",
+    "description": "Hinglish mein problem description - same concept pe based",
+    "hint": "Hint bhi Hinglish mein"
   }
 }
 
-Rules for your response:
-1. The roast should be funny but NEVER personally insulting
-2. All explanations should use simple, clear language
-3. The corrected code must be complete and runnable
-4. MCQs must be directly related to the mistake found
-5. The practice problem should reinforce the same concept
-6. Keep the golden rule memorable and quotable`;
+YAAD RAKH:
+1. Roast BAHUT brutal hona chahiye - user ko sharam aani chahiye
+2. Sab kuch Hinglish mein - Hindi + English mix
+3. Bollywood, cricket, desi references use kar
+4. Funny but educational hona chahiye
+5. Code comments bhi Hinglish mein`;
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -66,7 +72,7 @@ serve(async (req) => {
     
     if (!code || !language) {
       return new Response(
-        JSON.stringify({ error: "Code and language are required" }),
+        JSON.stringify({ error: "Code aur language dono chahiye bhai" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -75,20 +81,20 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ error: "AI service not configured" }),
+        JSON.stringify({ error: "AI service configure nahi hai" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     console.log(`Roasting ${language} code, length: ${code.length} chars`);
 
-    const userPrompt = `Please review and roast this ${language} code:
+    const userPrompt = `Is ${language} code ka BRUTAL roast kar Hinglish mein:
 
 \`\`\`${language}
 ${code}
 \`\`\`
 
-Remember to respond with ONLY a valid JSON object following the exact structure specified.`;
+Yaad rakh - bahut harsh aur funny hona chahiye. User ko feel hona chahiye "maine ye kya likh diya". Response SIRF JSON mein.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -102,7 +108,7 @@ Remember to respond with ONLY a valid JSON object following the exact structure 
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 0.8,
+        temperature: 0.9,
         max_tokens: 4000,
       }),
     });
@@ -113,19 +119,19 @@ Remember to respond with ONLY a valid JSON object following the exact structure 
       
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+          JSON.stringify({ error: "Bhai thoda ruk, bahut zyada request aa rahi hai. Thodi der baad try kar." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "AI service quota exceeded." }),
+          JSON.stringify({ error: "AI service ka quota khatam ho gaya." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
       return new Response(
-        JSON.stringify({ error: "Failed to analyze code. Please try again." }),
+        JSON.stringify({ error: "Code analyze nahi ho paya. Dobara try kar bhai." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -138,16 +144,14 @@ Remember to respond with ONLY a valid JSON object following the exact structure 
     if (!content) {
       console.error("No content in AI response");
       return new Response(
-        JSON.stringify({ error: "No response from AI. Please try again." }),
+        JSON.stringify({ error: "AI se response nahi aaya. Dobara try kar." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Parse the JSON response - handle markdown code blocks if present
     let parsedContent;
     try {
       let jsonString = content.trim();
-      // Remove markdown code blocks if present
       if (jsonString.startsWith("```json")) {
         jsonString = jsonString.slice(7);
       } else if (jsonString.startsWith("```")) {
@@ -160,7 +164,7 @@ Remember to respond with ONLY a valid JSON object following the exact structure 
     } catch (parseError) {
       console.error("Failed to parse AI response as JSON:", content.substring(0, 500));
       return new Response(
-        JSON.stringify({ error: "Failed to parse AI response. Please try again." }),
+        JSON.stringify({ error: "AI ka response samajh nahi aaya. Dobara try kar." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -173,7 +177,7 @@ Remember to respond with ONLY a valid JSON object following the exact structure 
   } catch (error) {
     console.error("Roast function error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Kuch toh gadbad ho gayi" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

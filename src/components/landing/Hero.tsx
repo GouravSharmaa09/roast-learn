@@ -22,15 +22,15 @@ export function Hero({ onGetStarted }: HeroProps) {
 
         {/* Main headline */}
         <h1 className="text-mobile-hero md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
-          <span className="text-foreground">Roast Your Code.</span>
+          <span className="text-foreground">Apna Code Bhejo.</span>
           <br />
-          <span className="text-gradient-fire">Learn It. Never Repeat.</span>
+          <span className="text-gradient-fire">Roast Khaao. Seekho.</span>
         </h1>
 
         {/* Subtext */}
         <p className="text-mobile-lg md:text-xl text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed">
-          Get your code roasted by AI, learn from your mistakes with deep explanations, 
-          and prove you've learned with a quick test.
+          AI tere code ka itna brutal roast karega ki tu sochega 
+          "maine ye kya likh diya". Phir sikhayega bhi sahi tarike se.
         </p>
 
         {/* CTA Button */}
@@ -41,7 +41,7 @@ export function Hero({ onGetStarted }: HeroProps) {
           className="mb-12"
         >
           <Flame className="w-6 h-6" />
-          Roast My Code
+          Roast Karo Mera Code 🔥
         </Button>
 
         {/* 3-Step Flow */}
@@ -49,20 +49,20 @@ export function Hero({ onGetStarted }: HeroProps) {
           <StepCard 
             number={1}
             icon={<Zap className="w-6 h-6 text-primary" />}
-            title="Paste Code"
-            description="Drop in your buggy code"
+            title="Code Paste Kar"
+            description="Apna ganda code yahan daal"
           />
           <StepCard 
             number={2}
             icon={<Brain className="w-6 h-6 text-primary" />}
-            title="Get Roasted & Fixed"
-            description="Learn why it's wrong & how to fix it"
+            title="Roast + Fix"
+            description="Brutal roast aur sahi code dono milega"
           />
           <StepCard 
             number={3}
             icon={<CheckCircle className="w-6 h-6 text-primary" />}
-            title="Pass the Test"
-            description="Prove you've mastered it"
+            title="Test Pass Kar"
+            description="Seekha ya nahi, prove kar"
           />
         </div>
       </div>
