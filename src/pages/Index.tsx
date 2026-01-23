@@ -7,6 +7,7 @@ import { QuizSection } from "@/components/roast/QuizSection";
 import { Language, RoastResponse } from "@/types/roast";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 type AppState = "landing" | "editor" | "loading" | "results" | "quiz";
 
@@ -15,6 +16,7 @@ const Index = () => {
   const [result, setResult] = useState<RoastResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
     setAppState("editor");
@@ -68,6 +70,7 @@ const Index = () => {
   const handleLogoClick = () => {
     setResult(null);
     setAppState("landing");
+    navigate("/");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -84,10 +87,10 @@ const Index = () => {
           <section className="py-8 sm:py-12">
             <div className="text-center mb-8 px-4">
               <h2 className="text-mobile-2xl sm:text-3xl font-bold text-foreground mb-2">
-                Apna Code Paste Kar 📝
+                Apna Code Daal 📝
               </h2>
               <p className="text-muted-foreground">
-                Language select kar aur code daal de neeche
+                Language select kar aur himmat hai toh code paste kar
               </p>
             </div>
             <CodeEditor 
@@ -104,7 +107,7 @@ const Index = () => {
                 Tera Roast Ready Hai 🔥
               </h2>
               <p className="text-muted-foreground">
-                Scroll kar aur apni galtiyon se seekh
+                Scroll kar aur apni galtiyon se seekh le
               </p>
             </div>
             <ResultSection 
