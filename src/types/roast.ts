@@ -18,8 +18,14 @@ export interface RoastResponse {
   stepByStepFix: string[];
   correctedCode: string;
   goldenRule: string;
+  memoryHook?: string;
   mcqs: MCQ[];
   practiceProblem: PracticeProblem;
+}
+
+export interface ExplainBackResponse {
+  feedback: string;
+  passed: boolean;
 }
 
 export type Language = 'javascript' | 'python' | 'cpp' | 'java';

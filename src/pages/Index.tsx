@@ -1,22 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Hero } from "@/components/landing/Hero";
 import { CodeEditor } from "@/components/roast/CodeEditor";
 import { ResultSection } from "@/components/roast/ResultSection";
 import { QuizSection } from "@/components/roast/QuizSection";
+import { SplashScreen } from "@/components/SplashScreen";
 import { Language, RoastResponse } from "@/types/roast";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
-type AppState = "landing" | "editor" | "loading" | "results" | "quiz";
+type AppState = "splash" | "landing" | "editor" | "loading" | "results" | "quiz";
 
 const Index = () => {
-  const [appState, setAppState] = useState<AppState>("landing");
+  const [appState, setAppState] = useState<AppState>("splash");
   const [result, setResult] = useState<RoastResponse | null>(null);
+  const [originalCode, setOriginalCode] = useState<string>("");
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check if splash was already shown in this session
+  useEffect(() => {
+    const splashShown = sessionStorage.getItem("splash_shown");
+    if (splashShown) {
+      setAppState("landing");
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem("splash_shown", "true");
+    setAppState("landing");
+  };
 
   const handleGetStarted = () => {
     setAppState("editor");
@@ -26,6 +42,8 @@ const Index = () => {
   const handleSubmitCode = async (code: string, language: Language) => {
     setIsLoading(true);
     setAppState("loading");
+    setOriginalCode(code);
+    setSelectedLanguage(language);
 
     try {
       const { data, error } = await supabase.functions.invoke('roast-code', {
@@ -63,12 +81,14 @@ const Index = () => {
 
   const handleRetry = () => {
     setResult(null);
+    setOriginalCode("");
     setAppState("editor");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleLogoClick = () => {
     setResult(null);
+    setOriginalCode("");
     setAppState("landing");
     navigate("/");
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -76,6 +96,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Splash Screen */}
+      {appState === "splash" && (
+        <SplashScreen onComplete={handleSplashComplete} />
+      )}
+
       <Header onLogoClick={handleLogoClick} />
       
       <main className="flex-1">
@@ -112,6 +137,8 @@ const Index = () => {
             </div>
             <ResultSection 
               result={result}
+              originalCode={originalCode}
+              language={selectedLanguage}
               onStartQuiz={handleStartQuiz}
             />
           </section>
