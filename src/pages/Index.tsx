@@ -7,6 +7,7 @@ import { QuizSection } from "@/components/roast/QuizSection";
 import { SplashScreen } from "@/components/SplashScreen";
 import { RoastHistory } from "@/components/roast/RoastHistory";
 import { BackNavigation } from "@/components/roast/BackNavigation";
+import { LoadingSkeleton } from "@/components/roast/LoadingSkeleton";
 import { Language, RoastResponse } from "@/types/roast";
 import { useToast } from "@/hooks/use-toast";
 import { useRoastHistory } from "@/hooks/useRoastHistory";
@@ -167,7 +168,7 @@ const Index = () => {
           <Hero onGetStarted={handleGetStarted} />
         )}
 
-        {(appState === "editor" || appState === "loading") && (
+        {appState === "editor" && (
           <section className="py-8 sm:py-12">
             <div className="text-center mb-8 px-4">
               <h2 className="text-mobile-2xl sm:text-3xl font-bold text-foreground mb-2">
@@ -181,6 +182,12 @@ const Index = () => {
               onSubmit={handleSubmitCode}
               isLoading={isLoading}
             />
+          </section>
+        )}
+
+        {appState === "loading" && (
+          <section className="py-8 sm:py-12">
+            <LoadingSkeleton />
           </section>
         )}
 
