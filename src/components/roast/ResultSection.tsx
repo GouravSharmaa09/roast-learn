@@ -5,6 +5,7 @@ import { Flame, Brain, AlertTriangle, ListOrdered, Sparkles, Star, ClipboardChec
 import { CodeBlock } from "./CodeBlock";
 import { MemoryHook } from "./MemoryHook";
 import { ExplainBack } from "./ExplainBack";
+import { ShareCard } from "./ShareCard";
 
 interface ResultSectionProps {
   result: RoastResponse;
@@ -123,6 +124,12 @@ export function ResultSection({ result, originalCode, language, onStartQuiz }: R
       {result.memoryHook && (
         <MemoryHook hook={result.memoryHook} />
       )}
+
+      {/* Share Card */}
+      <ShareCard 
+        result={result}
+        language={language}
+      />
 
       {/* Explain It Back Section */}
       {!showExplainBack && !explainBackPassed && (

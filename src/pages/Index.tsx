@@ -8,10 +8,12 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { RoastHistory } from "@/components/roast/RoastHistory";
 import { BackNavigation } from "@/components/roast/BackNavigation";
 import { LoadingSkeleton } from "@/components/roast/LoadingSkeleton";
+import { DailyChallenge } from "@/components/roast/DailyChallenge";
 import { Language, RoastResponse } from "@/types/roast";
 import { useToast } from "@/hooks/use-toast";
 import { useRoastHistory } from "@/hooks/useRoastHistory";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
+import { useDailyChallenge } from "@/hooks/useDailyChallenge";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
@@ -27,9 +29,10 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Hooks for history and sounds
+  // Hooks for history, sounds, and daily challenge
   const { history, addToHistory, deleteFromHistory, clearHistory } = useRoastHistory();
   const { playNotify } = useSoundEffects();
+  const { markCompleted: markChallengeCompleted } = useDailyChallenge();
 
   // Check if splash was already shown in this session
   useEffect(() => {
@@ -73,7 +76,7 @@ const Index = () => {
     }
   };
 
-  const handleSubmitCode = async (code: string, language: Language) => {
+  const handleSubmitCode = async (code: string, language: Language, isChallenge: boolean = false) => {
     setIsLoading(true);
     changeState("loading");
     setOriginalCode(code);
@@ -98,6 +101,11 @@ const Index = () => {
       // Save to history
       addToHistory(code, language, roastResult);
       
+      // Mark daily challenge as completed if this was a challenge
+      if (isChallenge) {
+        markChallengeCompleted();
+      }
+      
       // Play notification sound! 🔔
       playNotify();
       
@@ -114,6 +122,10 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDailyChallengeStart = (code: string, language: string) => {
+    handleSubmitCode(code, language as Language, true);
   };
 
   const handleStartQuiz = () => {
@@ -170,6 +182,14 @@ const Index = () => {
 
         {appState === "editor" && (
           <section className="py-8 sm:py-12">
+            <div className="container max-w-2xl mx-auto px-4">
+              {/* Daily Challenge Section */}
+              <DailyChallenge 
+                onStartChallenge={handleDailyChallengeStart}
+                isLoading={isLoading}
+              />
+            </div>
+            
             <div className="text-center mb-8 px-4">
               <h2 className="text-mobile-2xl sm:text-3xl font-bold text-foreground mb-2">
                 Apna Code Daal 📝
@@ -179,7 +199,7 @@ const Index = () => {
               </p>
             </div>
             <CodeEditor 
-              onSubmit={handleSubmitCode}
+              onSubmit={(code, language) => handleSubmitCode(code, language, false)}
               isLoading={isLoading}
             />
           </section>
