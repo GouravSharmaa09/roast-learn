@@ -5,8 +5,12 @@ import { CodeEditor } from "@/components/roast/CodeEditor";
 import { ResultSection } from "@/components/roast/ResultSection";
 import { QuizSection } from "@/components/roast/QuizSection";
 import { SplashScreen } from "@/components/SplashScreen";
+import { RoastHistory } from "@/components/roast/RoastHistory";
+import { BackNavigation } from "@/components/roast/BackNavigation";
 import { Language, RoastResponse } from "@/types/roast";
 import { useToast } from "@/hooks/use-toast";
+import { useRoastHistory } from "@/hooks/useRoastHistory";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
@@ -14,12 +18,17 @@ type AppState = "splash" | "landing" | "editor" | "loading" | "results" | "quiz"
 
 const Index = () => {
   const [appState, setAppState] = useState<AppState>("splash");
+  const [stateHistory, setStateHistory] = useState<AppState[]>([]);
   const [result, setResult] = useState<RoastResponse | null>(null);
   const [originalCode, setOriginalCode] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Hooks for history and sounds
+  const { history, addToHistory, deleteFromHistory, clearHistory } = useRoastHistory();
+  const { playSizzle } = useSoundEffects();
 
   // Check if splash was already shown in this session
   useEffect(() => {
@@ -29,19 +38,43 @@ const Index = () => {
     }
   }, []);
 
+  const changeState = (newState: AppState) => {
+    setStateHistory(prev => [...prev, appState]);
+    setAppState(newState);
+  };
+
   const handleSplashComplete = () => {
     sessionStorage.setItem("splash_shown", "true");
     setAppState("landing");
   };
 
   const handleGetStarted = () => {
-    setAppState("editor");
+    changeState("editor");
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBack = () => {
+    if (stateHistory.length > 0) {
+      const previousState = stateHistory[stateHistory.length - 1];
+      setStateHistory(prev => prev.slice(0, -1));
+      setAppState(previousState);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Default fallback
+      if (appState === "quiz") {
+        setAppState("results");
+      } else if (appState === "results") {
+        setAppState("editor");
+      } else {
+        setAppState("landing");
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleSubmitCode = async (code: string, language: Language) => {
     setIsLoading(true);
-    setAppState("loading");
+    changeState("loading");
     setOriginalCode(code);
     setSelectedLanguage(language);
 
@@ -58,7 +91,15 @@ const Index = () => {
         throw new Error(data.error);
       }
 
-      setResult(data as RoastResponse);
+      const roastResult = data as RoastResponse;
+      setResult(roastResult);
+      
+      // Save to history
+      addToHistory(code, language, roastResult);
+      
+      // Play sizzle sound! 🔥
+      playSizzle();
+      
       setAppState("results");
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
@@ -75,13 +116,14 @@ const Index = () => {
   };
 
   const handleStartQuiz = () => {
-    setAppState("quiz");
+    changeState("quiz");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRetry = () => {
     setResult(null);
     setOriginalCode("");
+    setStateHistory([]);
     setAppState("editor");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -89,8 +131,18 @@ const Index = () => {
   const handleLogoClick = () => {
     setResult(null);
     setOriginalCode("");
+    setStateHistory([]);
     setAppState("landing");
     navigate("/");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleHistorySelect = (entry: typeof history[0]) => {
+    setOriginalCode(entry.originalCode);
+    setSelectedLanguage(entry.language);
+    setResult(entry.result);
+    changeState("results");
+    playSizzle();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -104,6 +156,13 @@ const Index = () => {
       <Header onLogoClick={handleLogoClick} />
       
       <main className="flex-1">
+        {/* Back Navigation */}
+        <BackNavigation 
+          currentState={appState}
+          onBack={handleBack}
+          onHome={handleLogoClick}
+        />
+
         {appState === "landing" && (
           <Hero onGetStarted={handleGetStarted} />
         )}
@@ -115,7 +174,7 @@ const Index = () => {
                 Apna Code Daal 📝
               </h2>
               <p className="text-muted-foreground">
-                Language select kar aur himmat hai toh code paste kar
+                Photo upload kar ya code paste kar
               </p>
             </div>
             <CodeEditor 
@@ -161,6 +220,14 @@ const Index = () => {
           </section>
         )}
       </main>
+
+      {/* History Panel */}
+      <RoastHistory 
+        history={history}
+        onSelect={handleHistorySelect}
+        onDelete={deleteFromHistory}
+        onClear={clearHistory}
+      />
 
       {/* Footer */}
       <footer className="border-t border-border/50 py-6 mt-auto">

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Lightbulb, RotateCcw } from "lucide-react";
 import { StreakBadge } from "./StreakBadge";
 import { useStreak } from "@/hooks/useStreak";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 
 interface QuizSectionProps {
   result: RoastResponse;
@@ -20,6 +21,7 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
   const [streakMessage, setStreakMessage] = useState("");
   
   const { streakData, incrementStreak, resetStreak, getStreakMessage } = useStreak();
+  const { playApplause, playError } = useSoundEffects();
 
   const mcq = result.mcqs[currentQuestion];
   const isAnswered = selectedAnswers[currentQuestion] !== null;
@@ -62,9 +64,11 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
       if (passed) {
         const newData = incrementStreak();
         setStreakMessage(getStreakMessage(newData.currentStreak));
+        playApplause(); // 🎉 Applause on pass!
       } else {
         resetStreak();
         setStreakMessage("");
+        playError(); // 😢 Error sound on fail
       }
     }
   }, [quizComplete]);

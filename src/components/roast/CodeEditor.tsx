@@ -2,16 +2,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Flame, Loader2, Code2, ChevronDown } from "lucide-react";
 import { Language, LANGUAGES } from "@/types/roast";
+import { ImageUpload } from "./ImageUpload";
 
 interface CodeEditorProps {
   onSubmit: (code: string, language: Language) => void;
   isLoading: boolean;
+  initialCode?: string;
 }
 
-export function CodeEditor({ onSubmit, isLoading }: CodeEditorProps) {
-  const [code, setCode] = useState("");
+export function CodeEditor({ onSubmit, isLoading, initialCode = "" }: CodeEditorProps) {
+  const [code, setCode] = useState(initialCode);
   const [language, setLanguage] = useState<Language>("javascript");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const handleCodeExtracted = (extractedCode: string) => {
+    setCode(extractedCode);
+  };
 
   const handleSubmit = () => {
     if (code.trim()) {
@@ -24,6 +30,19 @@ export function CodeEditor({ onSubmit, isLoading }: CodeEditorProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
+      {/* Image Upload Option */}
+      <ImageUpload 
+        onCodeExtracted={handleCodeExtracted}
+        isLoading={isLoading}
+      />
+
+      {/* Or Divider */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-sm text-muted-foreground">ya phir</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
       {/* Language Selector Card */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-muted-foreground mb-2">
