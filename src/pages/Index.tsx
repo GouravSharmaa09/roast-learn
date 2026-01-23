@@ -18,7 +18,6 @@ const Index = () => {
 
   const handleGetStarted = () => {
     setAppState("editor");
-    // Scroll to top smoothly
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -32,7 +31,7 @@ const Index = () => {
       });
 
       if (error) {
-        throw new Error(error.message || 'Failed to roast code');
+        throw new Error(error.message || 'Code roast nahi ho paya');
       }
 
       if (data.error) {
@@ -45,8 +44,8 @@ const Index = () => {
     } catch (error) {
       console.error('Roast error:', error);
       toast({
-        title: "Roast Failed 🔥",
-        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        title: "Roast Fail Ho Gaya 🔥",
+        description: error instanceof Error ? error.message : "Kuch gadbad ho gayi. Dobara try kar bhai.",
         variant: "destructive",
       });
       setAppState("editor");
@@ -85,10 +84,10 @@ const Index = () => {
           <section className="py-8 sm:py-12">
             <div className="text-center mb-8 px-4">
               <h2 className="text-mobile-2xl sm:text-3xl font-bold text-foreground mb-2">
-                Paste Your Code 📝
+                Apna Code Paste Kar 📝
               </h2>
               <p className="text-muted-foreground">
-                Select a language and drop your code below
+                Language select kar aur code daal de neeche
               </p>
             </div>
             <CodeEditor 
@@ -102,10 +101,10 @@ const Index = () => {
           <section className="py-8 sm:py-12">
             <div className="text-center mb-8 px-4">
               <h2 className="text-mobile-2xl sm:text-3xl font-bold text-foreground mb-2">
-                Your Roast is Served 🔥
+                Tera Roast Ready Hai 🔥
               </h2>
               <p className="text-muted-foreground">
-                Scroll through to learn from your mistakes
+                Scroll kar aur apni galtiyon se seekh
               </p>
             </div>
             <ResultSection 
@@ -119,10 +118,10 @@ const Index = () => {
           <section className="py-8 sm:py-12">
             <div className="text-center mb-8 px-4">
               <h2 className="text-mobile-2xl sm:text-3xl font-bold text-foreground mb-2">
-                Test Your Understanding 🎯
+                Ab Prove Kar 🎯
               </h2>
               <p className="text-muted-foreground">
-                Prove you've learned from the roast
+                Seekha ya nahi, ye test batayega
               </p>
             </div>
             <QuizSection 
@@ -137,7 +136,7 @@ const Index = () => {
       <footer className="border-t border-border/50 py-6 mt-auto">
         <div className="container px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            Made with 🔥 to help developers learn the hard way
+            🔥 Developers ko unki aukaat dikhane ke liye banaya gaya
           </p>
         </div>
       </footer>

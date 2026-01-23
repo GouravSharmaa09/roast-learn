@@ -21,7 +21,7 @@ export function Header({ onLogoClick }: HeaderProps) {
         </button>
         
         <div className="text-xs text-muted-foreground hidden sm:block">
-          Learn the hard way 🔥
+          Seekh le bhai, mushkil tarike se 🔥
         </div>
       </div>
     </header>

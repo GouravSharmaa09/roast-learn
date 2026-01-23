@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { RoastResponse, MCQ } from "@/types/roast";
+import { RoastResponse } from "@/types/roast";
 import { Button } from "@/components/ui/button";
-import { Check, X, Lightbulb, RotateCcw, Trophy, Flame } from "lucide-react";
+import { Check, X, Lightbulb, RotateCcw } from "lucide-react";
 
 interface QuizSectionProps {
   result: RoastResponse;
@@ -45,7 +45,6 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
         correct++;
       }
     });
-    // Score out of 10: MCQs worth 3 points each, practice problem worth 1
     return Math.round((correct / result.mcqs.length) * 9) + 1;
   };
 
@@ -66,13 +65,13 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
           </div>
           
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            {passed ? "You Survived the Roast!" : "Roast Postponed"}
+            {passed ? "Bhai Tu Toh Samajh Gaya! 🎉" : "Dobara Padh Bhai 😈"}
           </h2>
           
           <p className="text-muted-foreground mb-6">
             {passed 
-              ? "Great job! You've proven you understand the concept." 
-              : "Revise and try again. You'll get it next time!"}
+              ? "Kya baat hai! Ab aisa code nahi likhega tu." 
+              : "Thoda aur dhyan de. Phir se roast le aur seekh."}
           </p>
 
           {/* Practice Problem */}
@@ -94,7 +93,7 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
             className="w-full"
           >
             <RotateCcw className="w-5 h-5" />
-            Roast More Code
+            Aur Code Roast Kar
           </Button>
         </div>
       </div>
@@ -106,7 +105,7 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
       {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-muted-foreground">Question {currentQuestion + 1} of {result.mcqs.length}</span>
+          <span className="text-sm text-muted-foreground">Sawaal {currentQuestion + 1} / {result.mcqs.length}</span>
           <span className="text-sm text-primary font-medium">📝 MCQ</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -175,7 +174,7 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
               <X className="w-5 h-5 text-destructive" />
             )}
             <span className={`font-semibold ${isCorrect ? 'text-success' : 'text-destructive'}`}>
-              {isCorrect ? 'Correct!' : 'Not quite!'}
+              {isCorrect ? 'Sahi Jawab! 🎉' : 'Galat Bhai! 😅'}
             </span>
           </div>
           <p className="text-foreground/80 text-sm leading-relaxed">
@@ -192,7 +191,7 @@ export function QuizSection({ result, onRetry }: QuizSectionProps) {
           onClick={handleNext}
           className="w-full"
         >
-          {currentQuestion < result.mcqs.length - 1 ? 'Next Question' : 'See Results'}
+          {currentQuestion < result.mcqs.length - 1 ? 'Agla Sawaal' : 'Result Dekh'}
         </Button>
       )}
     </div>

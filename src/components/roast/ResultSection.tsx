@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { RoastResponse, MCQ } from "@/types/roast";
+import { RoastResponse } from "@/types/roast";
 import { Button } from "@/components/ui/button";
-import { Flame, Brain, AlertTriangle, ListOrdered, Sparkles, Star, ClipboardCheck, Lightbulb, ChevronDown, ChevronUp, Check, X } from "lucide-react";
+import { Flame, Brain, AlertTriangle, ListOrdered, Sparkles, Star, ClipboardCheck, ChevronDown, ChevronUp } from "lucide-react";
 
 interface ResultSectionProps {
   result: RoastResponse;
@@ -26,7 +26,7 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       {/* Roast Section */}
       <ResultCard
         icon={<Flame className="w-5 h-5" />}
-        title="🔥 The Roast"
+        title="🔥 Tera Roast"
         bgClass="bg-roast"
         isExpanded={expandedSections.has('roast')}
         onToggle={() => toggleSection('roast')}
@@ -39,7 +39,7 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       {/* Why This Happens */}
       <ResultCard
         icon={<Brain className="w-5 h-5" />}
-        title="🧠 Why This Mistake Happens"
+        title="🧠 Ye Galti Kyun Hoti Hai"
         bgClass="bg-brain"
         isExpanded={expandedSections.has('why')}
         onToggle={() => toggleSection('why')}
@@ -52,7 +52,7 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       {/* Real-World Problems */}
       <ResultCard
         icon={<AlertTriangle className="w-5 h-5" />}
-        title="🧪 Real-World Problems"
+        title="🧪 Production Mein Kya Hoga"
         isExpanded={expandedSections.has('problems')}
         onToggle={() => toggleSection('problems')}
       >
@@ -64,7 +64,7 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       {/* Step-by-Step Fix */}
       <ResultCard
         icon={<ListOrdered className="w-5 h-5" />}
-        title="✋ Step-by-Step Fix"
+        title="✋ Aise Fix Kar"
         bgClass="bg-fix"
         isExpanded={expandedSections.has('fix')}
         onToggle={() => toggleSection('fix')}
@@ -84,7 +84,7 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       {/* Corrected Code */}
       <ResultCard
         icon={<Sparkles className="w-5 h-5" />}
-        title="✨ Clean & Corrected Code"
+        title="✨ Sahi Code Dekh"
         isExpanded={expandedSections.has('code')}
         onToggle={() => toggleSection('code')}
       >
@@ -98,7 +98,7 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
       {/* Golden Rule */}
       <ResultCard
         icon={<Star className="w-5 h-5 text-yellow-500" />}
-        title="📌 One Golden Rule"
+        title="📌 Yaad Rakh Ye Rule"
         isExpanded={expandedSections.has('golden')}
         onToggle={() => toggleSection('golden')}
         highlight
@@ -117,10 +117,10 @@ export function ResultSection({ result, onStartQuiz }: ResultSectionProps) {
           className="w-full"
         >
           <ClipboardCheck className="w-5 h-5" />
-          Test Your Understanding
+          Ab Test De - Seekha Ya Nahi
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-2">
-          Take a quick quiz to prove you've learned
+          Quick quiz se prove kar ki samajh aaya
         </p>
       </div>
     </div>
