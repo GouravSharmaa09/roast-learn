@@ -77,6 +77,16 @@ const Index = () => {
   };
 
   const handleSubmitCode = async (code: string, language: Language, isChallenge: boolean = false) => {
+    // Check if offline
+    if (!navigator.onLine) {
+      toast({
+        title: "Offline Hai Bhai 📡",
+        description: "Internet connect kar, AI roast ke liye network chahiye!",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     changeState("loading");
     setOriginalCode(code);
@@ -113,9 +123,16 @@ const Index = () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Roast error:', error);
+      
+      // Better error message for network issues
+      const isNetworkError = error instanceof Error && 
+        (error.message.includes('fetch') || error.message.includes('network') || !navigator.onLine);
+      
       toast({
-        title: "Roast Fail Ho Gaya 🔥",
-        description: error instanceof Error ? error.message : "Kuch gadbad ho gayi. Dobara try kar bhai.",
+        title: isNetworkError ? "Network Error 📡" : "Roast Fail Ho Gaya 🔥",
+        description: isNetworkError 
+          ? "Internet check kar bhai, connection lagta hai tut gaya." 
+          : (error instanceof Error ? error.message : "Kuch gadbad ho gayi. Dobara try kar bhai."),
         variant: "destructive",
       });
       setAppState("editor");
