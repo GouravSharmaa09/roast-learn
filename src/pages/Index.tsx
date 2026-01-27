@@ -226,6 +226,8 @@ const Index = () => {
               originalCode={originalCode}
               language={selectedLanguage}
               onStartQuiz={handleStartQuiz}
+              onNewRoast={(code, language) => handleSubmitCode(code, language, false)}
+              isLoading={isLoading}
             />
           </section>
         )}

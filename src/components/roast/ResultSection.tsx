@@ -6,15 +6,18 @@ import { CodeBlock } from "./CodeBlock";
 import { MemoryHook } from "./MemoryHook";
 import { ExplainBack } from "./ExplainBack";
 import { ShareCard } from "./ShareCard";
+import { InlineCodeEditor } from "./InlineCodeEditor";
 
 interface ResultSectionProps {
   result: RoastResponse;
   originalCode: string;
   language: Language;
   onStartQuiz: () => void;
+  onNewRoast?: (code: string, language: Language) => void;
+  isLoading?: boolean;
 }
 
-export function ResultSection({ result, originalCode, language, onStartQuiz }: ResultSectionProps) {
+export function ResultSection({ result, originalCode, language, onStartQuiz, onNewRoast, isLoading = false }: ResultSectionProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['roast', 'fix', 'code', 'golden']));
   const [showExplainBack, setShowExplainBack] = useState(false);
   const [explainBackPassed, setExplainBackPassed] = useState(false);
@@ -35,6 +38,13 @@ export function ResultSection({ result, originalCode, language, onStartQuiz }: R
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 space-y-4 animate-slide-up">
+      {/* Inline Code Editor - Submit new code without navigating away */}
+      {onNewRoast && (
+        <InlineCodeEditor 
+          onSubmit={onNewRoast}
+          isLoading={isLoading}
+        />
+      )}
       {/* Roast Section */}
       <ResultCard
         icon={<Flame className="w-5 h-5" />}
