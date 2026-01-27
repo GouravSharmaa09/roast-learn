@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import InstallPrompt from "./components/pwa/InstallPrompt";
+import OfflineIndicator from "./components/pwa/OfflineIndicator";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <InstallPrompt />
+      <OfflineIndicator />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
