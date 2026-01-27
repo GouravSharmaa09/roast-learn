@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const systemPrompt = `Tu ek senior developer hai jo Hinglish (Hindi + English mix) mein baat karta hai. Tera kaam hai developers ke code ka BAHUT BRUTAL roast karna - unhe feel karwana chahiye ki "bhai maine ye kya bakwas likh diya". 
