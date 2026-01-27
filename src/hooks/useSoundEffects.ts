@@ -12,8 +12,27 @@ const SOUNDS = {
   error: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3',
 };
 
+// Haptic vibration patterns (in milliseconds)
+const VIBRATION_PATTERNS = {
+  notify: [50, 30, 50], // Quick double tap
+  success: [100, 50, 100, 50, 150], // Celebration pattern
+  error: [200, 100, 200], // Strong alert
+};
+
 export function useSoundEffects() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Haptic feedback function
+  const vibrate = useCallback((pattern: keyof typeof VIBRATION_PATTERNS) => {
+    try {
+      // Check if vibration API is supported
+      if ('vibrate' in navigator) {
+        navigator.vibrate(VIBRATION_PATTERNS[pattern]);
+      }
+    } catch (error) {
+      console.log('Vibration not supported:', error);
+    }
+  }, []);
 
   const playSound = useCallback((soundType: keyof typeof SOUNDS, volume = 0.5) => {
     try {
@@ -36,27 +55,32 @@ export function useSoundEffects() {
     }
   }, []);
 
-  // Notification sound - short ding when roast ready
+  // Notification sound + haptic - when roast ready
   const playNotify = useCallback(() => {
     playSound('notify', 0.5);
-  }, [playSound]);
+    vibrate('notify');
+  }, [playSound, vibrate]);
 
   const playApplause = useCallback(() => {
     playSound('applause', 0.4);
-  }, [playSound]);
+    vibrate('success');
+  }, [playSound, vibrate]);
 
   const playSuccess = useCallback(() => {
     playSound('success', 0.5);
-  }, [playSound]);
+    vibrate('success');
+  }, [playSound, vibrate]);
 
   const playError = useCallback(() => {
     playSound('error', 0.3);
-  }, [playSound]);
+    vibrate('error');
+  }, [playSound, vibrate]);
 
   return {
     playNotify,
     playApplause,
     playSuccess,
     playError,
+    vibrate,
   };
 }
