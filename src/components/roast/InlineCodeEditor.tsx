@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Flame, Loader2, ChevronDown, ChevronUp, Code2 } from "lucide-react";
+import { Flame, Loader2, ChevronDown, ChevronUp, Camera, X, ImageIcon } from "lucide-react";
 import { Language, LANGUAGES } from "@/types/roast";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface InlineCodeEditorProps {
   onSubmit: (code: string, language: Language) => void;
@@ -14,12 +16,84 @@ export function InlineCodeEditor({ onSubmit, isLoading, defaultExpanded = false 
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<Language>("javascript");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleSubmit = () => {
     if (code.trim()) {
       onSubmit(code.trim(), language);
-      setCode(""); // Clear after submission
+      setCode("");
+      setSelectedImage(null);
     }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File 📷",
+        description: "Bhai sirf image file daal",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Big 🐘",
+        description: "5MB se chhoti image daal",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setSelectedImage(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleProcessImage = async () => {
+    if (!selectedImage) return;
+
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-image', {
+        body: { image: selectedImage, mode: 'extract-code' }
+      });
+
+      if (error) throw error;
+
+      if (data.code) {
+        setCode(data.code);
+        setSelectedImage(null);
+        toast({
+          title: "Code Extract Ho Gaya! 🎉",
+          description: "Ab roast button dabao",
+        });
+      } else if (data.error) {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error('Image processing error:', error);
+      toast({
+        title: "Extract Nahi Ho Paya 😢",
+        description: error instanceof Error ? error.message : "Dobara try kar",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const clearImage = () => {
+    setSelectedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const selectedLang = LANGUAGES.find(l => l.value === language);
@@ -44,6 +118,15 @@ export function InlineCodeEditor({ onSubmit, isLoading, defaultExpanded = false 
 
   return (
     <div className="w-full max-w-2xl mx-auto mb-6 animate-slide-up">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
       <div className="bg-card/90 backdrop-blur-sm border-2 border-primary/30 rounded-2xl overflow-hidden shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between p-3 bg-secondary/50 border-b border-border">
@@ -59,42 +142,93 @@ export function InlineCodeEditor({ onSubmit, isLoading, defaultExpanded = false 
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
-          {/* Language Selector - Compact */}
-          <div className="relative">
+        <div className="p-4 space-y-3">
+          {/* Top Row: Language + Image Upload */}
+          <div className="flex gap-2">
+            {/* Language Selector */}
+            <div className="relative flex-1">
+              <button
+                onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+                className="w-full flex items-center gap-2 px-3 py-2 bg-secondary/50 border border-border hover:border-primary/50 rounded-xl transition-all"
+              >
+                <span className="text-lg">{selectedLang?.icon}</span>
+                <span className="text-sm font-medium text-foreground">{selectedLang?.label}</span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ml-auto ${showLanguageMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showLanguageMenu && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.value}
+                      onClick={() => {
+                        setLanguage(lang.value);
+                        setShowLanguageMenu(false);
+                      }}
+                      className={`w-full flex items-center gap-3 p-3 hover:bg-primary/10 transition-colors ${
+                        language === lang.value ? 'bg-primary/20' : ''
+                      }`}
+                    >
+                      <span className="text-lg">{lang.icon}</span>
+                      <span className="text-sm font-medium text-foreground">{lang.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Image Upload Button */}
             <button
-              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || isProcessing}
               className="flex items-center gap-2 px-4 py-2 bg-secondary/50 border border-border hover:border-primary/50 rounded-xl transition-all"
             >
-              <span className="text-lg">{selectedLang?.icon}</span>
-              <span className="text-sm font-medium text-foreground">{selectedLang?.label}</span>
-              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showLanguageMenu ? 'rotate-180' : ''}`} />
+              <Camera className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-foreground hidden sm:inline">📸 Photo</span>
             </button>
-
-            {showLanguageMenu && (
-              <div className="absolute top-full left-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden min-w-[180px]">
-                {LANGUAGES.map((lang) => (
-                  <button
-                    key={lang.value}
-                    onClick={() => {
-                      setLanguage(lang.value);
-                      setShowLanguageMenu(false);
-                    }}
-                    className={`w-full flex items-center gap-3 p-3 hover:bg-primary/10 transition-colors ${
-                      language === lang.value ? 'bg-primary/20' : ''
-                    }`}
-                  >
-                    <span className="text-lg">{lang.icon}</span>
-                    <span className="text-sm font-medium text-foreground">{lang.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Code Textarea - Compact */}
+          {/* Image Preview (if selected) */}
+          {selectedImage && (
+            <div className="bg-secondary/30 border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between p-2 bg-secondary/50 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-primary" />
+                  <span className="text-xs text-foreground">Preview</span>
+                </div>
+                <button onClick={clearImage} className="p-1 hover:bg-destructive/10 rounded">
+                  <X className="w-3 h-3 text-destructive" />
+                </button>
+              </div>
+              <div className="p-2">
+                <img src={selectedImage} alt="Code" className="w-full max-h-32 object-contain rounded bg-secondary" />
+              </div>
+              <div className="p-2 pt-0">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleProcessImage}
+                  disabled={isProcessing}
+                  className="w-full"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Extracting...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-4 h-4" />
+                      🔍 Code Nikaal
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Code Textarea */}
           <div className="relative flex border border-border rounded-xl overflow-hidden">
-            {/* Line Numbers */}
             <div className="flex-shrink-0 p-3 pr-2 bg-secondary/20 border-r border-border select-none">
               {Array.from({ length: Math.max(code.split('\n').length, 5) }, (_, i) => (
                 <div key={i} className="text-xs text-muted-foreground/50 font-mono leading-5 text-right w-5">
