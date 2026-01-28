@@ -2,17 +2,40 @@ import { useCallback, useRef, useEffect } from 'react';
 
 // Haptic vibration patterns (in milliseconds)
 const VIBRATION_PATTERNS = {
-  notify: [50, 30, 50], // Quick double tap
-  success: [100, 50, 100, 50, 150], // Celebration pattern
-  error: [200, 100, 200], // Strong alert
+  notify: [50, 30, 50],
+  success: [100, 50, 100, 50, 150],
+  error: [200, 100, 200],
 };
 
-// Create audio context for generating sounds programmatically
-// This is more reliable than external URLs which can fail/expire
-const createBeep = (frequency: number, duration: number, type: OscillatorType = 'sine'): Promise<void> => {
+// Shared AudioContext - reuse for better performance
+let sharedAudioContext: AudioContext | null = null;
+
+const getAudioContext = (): AudioContext | null => {
+  try {
+    if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+      sharedAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    // Resume if suspended (browser autoplay policy)
+    if (sharedAudioContext.state === 'suspended') {
+      sharedAudioContext.resume();
+    }
+    return sharedAudioContext;
+  } catch (error) {
+    console.log('AudioContext not supported:', error);
+    return null;
+  }
+};
+
+// Create beep with higher volume
+const createBeep = (frequency: number, duration: number, type: OscillatorType = 'sine', volume: number = 0.8): Promise<void> => {
   return new Promise((resolve) => {
+    const audioContext = getAudioContext();
+    if (!audioContext) {
+      resolve();
+      return;
+    }
+
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
       
@@ -22,102 +45,112 @@ const createBeep = (frequency: number, duration: number, type: OscillatorType = 
       oscillator.frequency.value = frequency;
       oscillator.type = type;
       
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      // Start at full volume, then fade out
+      gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
       
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + duration);
       
-      setTimeout(() => {
-        audioContext.close();
-        resolve();
-      }, duration * 1000);
+      setTimeout(resolve, duration * 1000);
     } catch (error) {
-      console.log('Audio not supported:', error);
+      console.log('Error creating beep:', error);
       resolve();
     }
   });
 };
 
-// Notification melody - ascending tones
+// Notification melody - loud ascending tones
 const playNotifyMelody = async () => {
-  await createBeep(523, 0.1, 'sine'); // C5
-  setTimeout(() => createBeep(659, 0.1, 'sine'), 100); // E5
-  setTimeout(() => createBeep(784, 0.15, 'sine'), 200); // G5
+  await createBeep(523, 0.15, 'sine', 0.9); // C5
+  setTimeout(() => createBeep(659, 0.15, 'sine', 0.9), 120); // E5
+  setTimeout(() => createBeep(784, 0.2, 'sine', 1.0), 240); // G5
 };
 
 // Success melody - happy chord
 const playSuccessMelody = async () => {
-  await createBeep(523, 0.15, 'sine'); // C5
-  setTimeout(() => createBeep(659, 0.15, 'sine'), 80); // E5
-  setTimeout(() => createBeep(784, 0.2, 'sine'), 160); // G5
-  setTimeout(() => createBeep(1047, 0.25, 'sine'), 240); // C6
+  await createBeep(523, 0.15, 'sine', 0.8);
+  setTimeout(() => createBeep(659, 0.15, 'sine', 0.8), 100);
+  setTimeout(() => createBeep(784, 0.2, 'sine', 0.9), 200);
+  setTimeout(() => createBeep(1047, 0.3, 'sine', 1.0), 300);
 };
 
-// Error beep - low tone
+// Error beep - low warning tone
 const playErrorMelody = async () => {
-  await createBeep(200, 0.2, 'square');
-  setTimeout(() => createBeep(150, 0.3, 'square'), 200);
+  await createBeep(200, 0.25, 'square', 0.7);
+  setTimeout(() => createBeep(150, 0.35, 'square', 0.8), 250);
 };
 
-// Applause simulation - multiple quick notes
+// Applause simulation
 const playApplauseMelody = async () => {
   const notes = [523, 587, 659, 698, 784, 880, 988, 1047];
   notes.forEach((freq, i) => {
-    setTimeout(() => createBeep(freq, 0.08, 'sine'), i * 50);
+    setTimeout(() => createBeep(freq, 0.1, 'sine', 0.7), i * 60);
   });
 };
 
 export function useSoundEffects() {
-  const hasInteracted = useRef(false);
+  const isReady = useRef(false);
 
-  // Track user interaction to enable audio
+  // Initialize audio on first user interaction
   useEffect(() => {
-    const handleInteraction = () => {
-      hasInteracted.current = true;
+    const initAudio = () => {
+      const ctx = getAudioContext();
+      if (ctx) {
+        isReady.current = true;
+        console.log('🔊 Audio ready!');
+      }
     };
     
-    window.addEventListener('click', handleInteraction, { once: true });
-    window.addEventListener('touchstart', handleInteraction, { once: true });
+    // Try to init immediately, and also on interaction
+    initAudio();
+    
+    window.addEventListener('click', initAudio, { once: true });
+    window.addEventListener('touchstart', initAudio, { once: true });
+    window.addEventListener('keydown', initAudio, { once: true });
     
     return () => {
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('click', initAudio);
+      window.removeEventListener('touchstart', initAudio);
+      window.removeEventListener('keydown', initAudio);
     };
   }, []);
 
-  // Haptic feedback function
   const vibrate = useCallback((pattern: keyof typeof VIBRATION_PATTERNS) => {
     try {
       if ('vibrate' in navigator) {
         navigator.vibrate(VIBRATION_PATTERNS[pattern]);
       }
     } catch (error) {
-      console.log('Vibration not supported:', error);
+      // Vibration not supported
     }
   }, []);
 
-  // Notification sound + haptic - when roast ready
   const playNotify = useCallback(() => {
     console.log('🔔 Playing notify sound');
+    // Ensure context is ready
+    getAudioContext();
     playNotifyMelody();
     vibrate('notify');
   }, [vibrate]);
 
   const playApplause = useCallback(() => {
     console.log('👏 Playing applause sound');
+    getAudioContext();
     playApplauseMelody();
     vibrate('success');
   }, [vibrate]);
 
   const playSuccess = useCallback(() => {
     console.log('✅ Playing success sound');
+    getAudioContext();
     playSuccessMelody();
     vibrate('success');
   }, [vibrate]);
 
   const playError = useCallback(() => {
     console.log('❌ Playing error sound');
+    getAudioContext();
     playErrorMelody();
     vibrate('error');
   }, [vibrate]);
