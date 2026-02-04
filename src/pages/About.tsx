@@ -2,11 +2,23 @@ import { Flame, Code2, Brain, Trophy, Users, Zap, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
+import { Helmet } from "react-helmet-async";
 
 const About = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header onLogoClick={() => {}} />
+    <>
+      <Helmet>
+        <title>About Roast My Code – Free AI Code Reviewer in Hinglish</title>
+        <meta name="description" content="Learn about Roast My Code - the free AI-powered code reviewer that roasts your code in Hinglish. Built for Indian developers to learn coding with fun and humor!" />
+        <meta name="keywords" content="about roast my code, hinglish code reviewer, indian developer tool, code review app, learn coding hindi" />
+        <link rel="canonical" href="https://www.roast-my-code.in/about" />
+        <meta property="og:title" content="About Roast My Code – Free AI Code Reviewer" />
+        <meta property="og:description" content="Learn about Roast My Code - the free AI-powered code reviewer that roasts your code in Hinglish!" />
+        <meta property="og:url" content="https://www.roast-my-code.in/about" />
+      </Helmet>
+
+      <div className="min-h-screen flex flex-col">
+        <Header onLogoClick={() => {}} />
       
       <main className="flex-1">
         {/* Hero Section */}
@@ -157,6 +169,19 @@ const About = () => {
           </div>
         </section>
 
+        {/* Internal Links Section */}
+        <section className="py-8 px-4 bg-card/30">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-xl font-bold text-center mb-6">Explore Our Tools 🛠️</h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/roast-javascript-code" className="text-primary hover:underline">Roast JavaScript Code</Link>
+              <Link to="/roast-python-code" className="text-primary hover:underline">Roast Python Code</Link>
+              <Link to="/ai-code-review" className="text-primary hover:underline">AI Code Review Tool</Link>
+              <Link to="/" className="text-primary hover:underline">Home</Link>
+            </div>
+          </div>
+        </section>
+
         {/* Credits */}
         <section className="py-8 px-4 border-t border-border/50">
           <div className="max-w-2xl mx-auto text-center">
@@ -170,6 +195,7 @@ const About = () => {
         </section>
       </main>
     </div>
+    </>
   );
 };
 

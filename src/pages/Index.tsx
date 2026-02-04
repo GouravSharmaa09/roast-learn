@@ -15,7 +15,7 @@ import { useRoastHistory } from "@/hooks/useRoastHistory";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { useDailyChallenge } from "@/hooks/useDailyChallenge";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 type AppState = "splash" | "landing" | "editor" | "loading" | "results" | "quiz";
 
@@ -277,8 +277,14 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border/50 py-6 mt-auto">
-        <div className="container px-4 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="container px-4">
+          <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm">
+            <Link to="/roast-javascript-code" className="text-primary hover:underline">Roast JavaScript</Link>
+            <Link to="/roast-python-code" className="text-primary hover:underline">Roast Python</Link>
+            <Link to="/ai-code-review" className="text-primary hover:underline">AI Code Review</Link>
+            <Link to="/about" className="text-primary hover:underline">About</Link>
+          </div>
+          <p className="text-sm text-muted-foreground text-center">
             🔥 Developers ko unki aukaat dikhane ke liye banaya gaya
           </p>
         </div>
