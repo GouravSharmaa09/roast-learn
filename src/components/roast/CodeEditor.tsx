@@ -8,11 +8,12 @@ interface CodeEditorProps {
   onSubmit: (code: string, language: Language) => void;
   isLoading: boolean;
   initialCode?: string;
+  defaultLanguage?: Language;
 }
 
-export function CodeEditor({ onSubmit, isLoading, initialCode = "" }: CodeEditorProps) {
+export function CodeEditor({ onSubmit, isLoading, initialCode = "", defaultLanguage = "javascript" }: CodeEditorProps) {
   const [code, setCode] = useState(initialCode);
-  const [language, setLanguage] = useState<Language>("javascript");
+  const [language, setLanguage] = useState<Language>(defaultLanguage);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   const handleCodeExtracted = (extractedCode: string) => {

@@ -1,5 +1,5 @@
 # Roast My Code - Robots.txt
-# https://roast-my-code-psi.vercel.app/
+# https://www.roast-my-code.in/
 
 User-agent: Googlebot
 Allow: /
@@ -28,4 +28,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://roast-my-code-psi.vercel.app/sitemap.xml
+Sitemap: https://www.roast-my-code.in/sitemap.xml
