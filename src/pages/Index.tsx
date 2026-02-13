@@ -287,6 +287,12 @@ const Index = () => {
           <p className="text-sm text-muted-foreground text-center">
             🔥 Developers ko unki aukaat dikhane ke liye banaya gaya
           </p>
+          <p className="text-sm text-muted-foreground text-center mt-2 flex items-center justify-center gap-1.5">
+            Made with <span className="animate-pulse">🔥</span> by{" "}
+            <span className="font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full text-xs tracking-wide">
+              Gourav Sharma
+            </span>
+          </p>
         </div>
       </footer>
     </div>
